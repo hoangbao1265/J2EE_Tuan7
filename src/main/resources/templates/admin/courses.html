@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý học phần - Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body class="admin-body">
+
+<div class="admin-layout">
+    <!-- SIDEBAR -->
+    <aside class="admin-sidebar">
+        <div class="sidebar-brand">
+            <i class="fas fa-graduation-cap"></i>
+            <span>EduAdmin</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a th:href="@{/home}" class="sidebar-link">
+                <i class="fas fa-home"></i> Trang chủ
+            </a>
+            <a th:href="@{/admin/courses}" class="sidebar-link active">
+                <i class="fas fa-book"></i> Quản lý học phần
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <span class="admin-user">
+                <i class="fas fa-user-shield"></i>
+                <sec:authentication property="name"/>
+            </span>
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="btn-sidebar-logout">
+                    <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <div class="admin-main">
+        <div class="admin-topbar">
+            <h1 class="admin-page-title">
+                <i class="fas fa-book"></i> Quản lý học phần
+            </h1>
+            <a th:href="@{/admin/courses/new}" class="btn-add-new" id="addCourseBtn">
+                <i class="fas fa-plus"></i> Thêm học phần mới
+            </a>
+        </div>
+
+        <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
+        <div class="alert alert-error" th:if="${error}" th:text="${error}"></div>
+
+        <div class="admin-card">
+            <div class="admin-card-header">
+                <span th:text="${courses.size()} + ' học phần'"></span>
+            </div>
+            <div class="table-wrapper">
+                <table class="admin-table">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Hình ảnh</th>
+                        <th>Tên học phần</th>
+                        <th>Tín chỉ</th>
+                        <th>Giảng viên</th>
+                        <th>Danh mục</th>
+                        <th>Thao tác</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="course, iter : ${courses}">
+                        <td th:text="${iter.index + 1 + currentPage * 10}"></td>
+                        <td>
+                            <img th:src="${course.image}" th:alt="${course.name}"
+                                 class="table-img"
+                                 onerror="this.src='https://cdn-icons-png.flaticon.com/512/2232/2232688.png'">
+                        </td>
+                        <td>
+                            <strong th:text="${course.name}"></strong>
+                        </td>
+                        <td>
+                            <span class="badge-credits" th:text="${course.credits} + ' TC'"></span>
+                        </td>
+                        <td th:text="${course.lecturer}"></td>
+                        <td>
+                            <span class="badge-category"
+                                  th:text="${course.category != null ? course.category.name : 'Chưa phân loại'}"></span>
+                        </td>
+                        <td>
+                            <div class="table-actions">
+                                <a th:href="@{/admin/courses/edit/{id}(id=${course.id})}"
+                                   class="btn-table-edit" th:id="'edit-' + ${course.id}">
+                                    <i class="fas fa-edit"></i> Sửa
+                                </a>
+                                <a th:href="@{/admin/courses/delete/{id}(id=${course.id})}"
+                                   class="btn-table-delete"
+                                   th:id="'delete-' + ${course.id}"
+                                   onclick="return confirm('Bạn có chắc muốn xóa học phần này?')">
+                                    <i class="fas fa-trash-alt"></i> Xóa
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination" th:if="${totalPages > 1}">
+                <a th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                   th:href="@{/admin/courses(page=${i})}"
+                   class="page-btn"
+                   th:classappend="${i == currentPage} ? 'active' : ''"
+                   th:text="${i + 1}"></a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

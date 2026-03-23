@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang chủ - EduRegister</title>
+    <meta name="description" content="Hệ thống đăng ký học phần - Xem danh sách tất cả các học phần">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+    <div class="nav-container">
+        <a class="nav-brand" th:href="@{/home}">
+            <i class="fas fa-graduation-cap"></i>
+            <span>EduRegister</span>
+        </a>
+
+        <form class="search-form" th:action="@{/home}" method="get">
+            <div class="search-box">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" name="keyword" th:value="${keyword}"
+                       placeholder="Tìm kiếm học phần..." class="search-input" id="searchInput">
+                <button type="submit" class="search-btn">Tìm</button>
+            </div>
+        </form>
+
+        <div class="nav-links">
+            <a th:href="@{/home}" class="nav-link active"><i class="fas fa-home"></i> Trang chủ</a>
+
+            <th:block sec:authorize="hasRole('ADMIN')">
+                <a th:href="@{/admin/courses}" class="nav-link admin-link">
+                    <i class="fas fa-cog"></i> Quản lý
+                </a>
+            </th:block>
+
+            <th:block sec:authorize="hasRole('STUDENT')">
+                <a th:href="@{/my-courses}" class="nav-link">
+                    <i class="fas fa-book-open"></i> Học phần của tôi
+                </a>
+            </th:block>
+
+            <th:block sec:authorize="isAuthenticated()">
+                <div class="user-menu">
+                    <span class="user-name">
+                        <i class="fas fa-user-circle"></i>
+                        <sec:authentication property="name"/>
+                    </span>
+                    <form th:action="@{/logout}" method="post" style="display:inline;">
+                        <button type="submit" class="btn-logout">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </button>
+                    </form>
+                </div>
+            </th:block>
+
+            <th:block sec:authorize="isAnonymous()">
+                <a th:href="@{/login}" class="btn-nav-login">
+                    <i class="fas fa-sign-in-alt"></i> Đăng nhập
+                </a>
+                <a th:href="@{/register}" class="btn-nav-register">
+                    <i class="fas fa-user-plus"></i> Đăng ký
+                </a>
+            </th:block>
+        </div>
+    </div>
+</nav>
+
+<main class="main-content">
+    <!-- HERO -->
+    <section class="hero" th:if="${keyword == null or keyword == ''}">
+        <div class="hero-content">
+            <div class="hero-badge">🎓 Hệ thống đăng ký học phần</div>
+            <h1 class="hero-title">Khám phá & Đăng ký<br><span class="gradient-text">Học Phần</span></h1>
+            <p class="hero-subtitle">Tìm kiếm và đăng ký các học phần phù hợp với lộ trình học tập của bạn</p>
+        </div>
+        <div class="hero-bg"></div>
+    </section>
+
+    <!-- SEARCH RESULT HEADER -->
+    <div class="search-result-header" th:if="${keyword != null and keyword != ''}">
+        <div class="container">
+            <h2>Kết quả tìm kiếm: "<span th:text="${keyword}"></span>"</h2>
+            <a th:href="@{/home}" class="btn-clear-search"><i class="fas fa-times"></i> Xóa tìm kiếm</a>
+        </div>
+    </div>
+
+    <!-- FLASH MESSAGES -->
+    <div class="container">
+        <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
+        <div class="alert alert-error" th:if="${error}" th:text="${error}"></div>
+    </div>
+
+    <!-- COURSES GRID -->
+    <section class="courses-section">
+        <div class="container">
+            <div class="section-header" th:if="${keyword == null or keyword == ''}">
+                <h2 class="section-title">Tất cả học phần</h2>
+                <p class="section-subtitle">Khám phá hơn <strong th:text="${totalPages * 5} + '+'"></strong> học phần chất lượng</p>
+            </div>
+
+            <div class="courses-grid" th:if="${!courses.isEmpty()}">
+                <div class="course-card" th:each="course : ${courses}">
+                    <div class="course-img-wrapper">
+                        <img th:src="${course.image}" th:alt="${course.name}"
+                             class="course-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/2232/2232688.png'">
+                        <div class="course-overlay">
+                            <span class="course-credits-badge" th:text="${course.credits} + ' tín chỉ'"></span>
+                        </div>
+                    </div>
+                    <div class="course-body">
+                        <div class="course-category" th:if="${course.category != null}" th:text="${course.category.name}"></div>
+                        <h3 class="course-name" th:text="${course.name}"></h3>
+                        <div class="course-info">
+                            <span class="course-lecturer">
+                                <i class="fas fa-chalkboard-teacher"></i>
+                                <span th:text="${course.lecturer}"></span>
+                            </span>
+                            <span class="course-credits">
+                                <i class="fas fa-star"></i>
+                                <span th:text="${course.credits} + ' TC'"></span>
+                            </span>
+                        </div>
+                        <div class="course-actions">
+                            <th:block sec:authorize="hasRole('STUDENT')">
+                                <div th:if="${enrolledCourseIds != null and enrolledCourseIds.contains(course.id)}">
+                                    <span class="btn-enrolled"><i class="fas fa-check-circle"></i> Đã đăng ký</span>
+                                </div>
+                                <div th:unless="${enrolledCourseIds != null and enrolledCourseIds.contains(course.id)}">
+                                    <form th:action="@{/enroll/{id}(id=${course.id})}" method="post">
+                                        <button type="submit" class="btn-enroll" id="enroll-btn">
+                                            <i class="fas fa-plus-circle"></i> Đăng ký
+                                        </button>
+                                    </form>
+                                </div>
+                            </th:block>
+                            <th:block sec:authorize="isAnonymous()">
+                                <a th:href="@{/login}" class="btn-enroll">
+                                    <i class="fas fa-sign-in-alt"></i> Đăng nhập để đăng ký
+                                </a>
+                            </th:block>
+                            <th:block sec:authorize="hasRole('ADMIN')">
+                                <a th:href="@{/admin/courses}" class="btn-admin-view">
+                                    <i class="fas fa-edit"></i> Quản lý
+                                </a>
+                            </th:block>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- EMPTY STATE -->
+            <div class="empty-state" th:if="${courses.isEmpty()}">
+                <i class="fas fa-search fa-3x"></i>
+                <h3>Không tìm thấy học phần nào</h3>
+                <p>Thử tìm kiếm với từ khóa khác</p>
+                <a th:href="@{/home}" class="btn-primary">Xem tất cả học phần</a>
+            </div>
+
+            <!-- PAGINATION -->
+            <div class="pagination" th:if="${totalPages > 1}">
+                <a th:href="@{/home(page=0, keyword=${keyword})}"
+                   class="page-btn" th:classappend="${currentPage == 0} ? 'disabled' : ''">
+                    <i class="fas fa-angle-double-left"></i>
+                </a>
+                <a th:href="@{/home(page=${currentPage - 1}, keyword=${keyword})}"
+                   class="page-btn" th:classappend="${currentPage == 0} ? 'disabled' : ''">
+                    <i class="fas fa-angle-left"></i>
+                </a>
+
+                <th:block th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+                    <a th:href="@{/home(page=${i}, keyword=${keyword})}"
+                       class="page-btn"
+                       th:classappend="${i == currentPage} ? 'active' : ''"
+                       th:text="${i + 1}"></a>
+                </th:block>
+
+                <a th:href="@{/home(page=${currentPage + 1}, keyword=${keyword})}"
+                   class="page-btn" th:classappend="${currentPage == totalPages - 1} ? 'disabled' : ''">
+                    <i class="fas fa-angle-right"></i>
+                </a>
+                <a th:href="@{/home(page=${totalPages - 1}, keyword=${keyword})}"
+                   class="page-btn" th:classappend="${currentPage == totalPages - 1} ? 'disabled' : ''">
+                    <i class="fas fa-angle-double-right"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer class="footer">
+    <div class="footer-container">
+        <div class="footer-brand">
+            <i class="fas fa-graduation-cap"></i>
+            <span>EduRegister</span>
+        </div>
+        <p>&copy; 2024 Hệ thống đăng ký học phần sinh viên</p>
+    </div>
+</footer>
+
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập - EduRegister</title>
+    <meta name="description" content="Đăng nhập vào hệ thống đăng ký học phần EduRegister">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="auth-body">
+
+<div class="auth-bg">
+    <div class="auth-blob blob-1"></div>
+    <div class="auth-blob blob-2"></div>
+    <div class="auth-blob blob-3"></div>
+</div>
+
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <a th:href="@{/home}" class="auth-brand">
+                <i class="fas fa-graduation-cap"></i>
+                <span>EduRegister</span>
+            </a>
+            <h1 class="auth-title">Đăng nhập</h1>
+            <p class="auth-subtitle">Chào mừng trở lại! Đăng nhập để tiếp tục</p>
+        </div>
+
+        <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
+        <div class="alert alert-success" th:if="${logout}" th:text="${logout}"></div>
+        <div class="alert alert-error" th:if="${error}" th:text="${error}"></div>
+
+        <form th:action="@{/login}" method="post" class="auth-form" id="loginForm">
+            <div class="form-group">
+                <label for="username" class="form-label">
+                    <i class="fas fa-user"></i> Tên đăng nhập
+                </label>
+                <input type="text" id="username" name="username"
+                       class="form-input" placeholder="Nhập username..."
+                       required autocomplete="username">
+            </div>
+
+            <div class="form-group">
+                <label for="password" class="form-label">
+                    <i class="fas fa-lock"></i> Mật khẩu
+                </label>
+                <div class="input-icon-wrapper">
+                    <input type="password" id="password" name="password"
+                           class="form-input" placeholder="Nhập mật khẩu..."
+                           required autocomplete="current-password">
+                    <button type="button" class="toggle-pwd" onclick="togglePassword('password', this)">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-auth" id="loginBtn">
+                <i class="fas fa-sign-in-alt"></i> Đăng nhập
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            <p>Chưa có tài khoản? <a th:href="@{/register}" class="auth-link">Đăng ký ngay</a></p>
+        </div>
+
+        <!-- Demo accounts -->
+        <div class="demo-accounts">
+            <p class="demo-title">Tài khoản demo:</p>
+            <div class="demo-item">
+                <span class="badge-admin">ADMIN</span>
+                <code>admin / admin123</code>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

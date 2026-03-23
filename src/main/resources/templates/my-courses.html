@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Học phần của tôi - EduRegister</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="nav-container">
+        <a class="nav-brand" th:href="@{/home}">
+            <i class="fas fa-graduation-cap"></i>
+            <span>EduRegister</span>
+        </a>
+        <form class="search-form" th:action="@{/home}" method="get">
+            <div class="search-box">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" name="keyword" placeholder="Tìm kiếm học phần..." class="search-input">
+                <button type="submit" class="search-btn">Tìm</button>
+            </div>
+        </form>
+        <div class="nav-links">
+            <a th:href="@{/home}" class="nav-link"><i class="fas fa-home"></i> Trang chủ</a>
+            <a th:href="@{/my-courses}" class="nav-link active"><i class="fas fa-book-open"></i> Học phần của tôi</a>
+            <div class="user-menu">
+                <span class="user-name">
+                    <i class="fas fa-user-circle"></i>
+                    <sec:authentication property="name"/>
+                </span>
+                <form th:action="@{/logout}" method="post" style="display:inline;">
+                    <button type="submit" class="btn-logout"><i class="fas fa-sign-out-alt"></i></button>
+                </form>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<main class="main-content">
+    <section class="page-header">
+        <div class="container">
+            <div class="page-header-content">
+                <div>
+                    <h1 class="page-title"><i class="fas fa-book-open"></i> Học phần của tôi</h1>
+                    <p class="page-subtitle">
+                        Xin chào, <strong th:text="${student.username}"></strong>!
+                        Bạn đã đăng ký <strong th:text="${enrollments.size()}"></strong> học phần.
+                    </p>
+                </div>
+                <a th:href="@{/home}" class="btn-primary">
+                    <i class="fas fa-plus"></i> Đăng ký thêm
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="courses-section">
+        <div class="container">
+            <div class="enrollments-grid" th:if="${!enrollments.isEmpty()}">
+                <div class="enrollment-card" th:each="enrollment : ${enrollments}">
+                    <div class="enrollment-img-wrapper">
+                        <img th:src="${enrollment.course.image}" th:alt="${enrollment.course.name}"
+                             class="course-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/2232/2232688.png'">
+                        <div class="enrollment-badge">
+                            <i class="fas fa-check-circle"></i> Đã đăng ký
+                        </div>
+                    </div>
+                    <div class="course-body">
+                        <div class="course-category" th:if="${enrollment.course.category != null}"
+                             th:text="${enrollment.course.category.name}"></div>
+                        <h3 class="course-name" th:text="${enrollment.course.name}"></h3>
+                        <div class="course-info">
+                            <span class="course-lecturer">
+                                <i class="fas fa-chalkboard-teacher"></i>
+                                <span th:text="${enrollment.course.lecturer}"></span>
+                            </span>
+                            <span class="course-credits">
+                                <i class="fas fa-star"></i>
+                                <span th:text="${enrollment.course.credits} + ' TC'"></span>
+                            </span>
+                        </div>
+                        <div class="enrollment-date">
+                            <i class="fas fa-calendar-alt"></i>
+                            Ngày đăng ký: <strong th:text="${#temporals.format(enrollment.enrollDate, 'dd/MM/yyyy')}"></strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="empty-state" th:if="${enrollments.isEmpty()}">
+                <i class="fas fa-book fa-3x"></i>
+                <h3>Bạn chưa đăng ký học phần nào</h3>
+                <p>Khám phá các học phần thú vị và bắt đầu đăng ký ngay!</p>
+                <a th:href="@{/home}" class="btn-primary">
+                    <i class="fas fa-search"></i> Khám phá học phần
+                </a>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer class="footer">
+    <div class="footer-container">
+        <div class="footer-brand">
+            <i class="fas fa-graduation-cap"></i>
+            <span>EduRegister</span>
+        </div>
+        <p>&copy; 2024 Hệ thống đăng ký học phần sinh viên</p>
+    </div>
+</footer>
+
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

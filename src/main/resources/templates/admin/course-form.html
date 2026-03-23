@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${course.id != null ? 'Sửa học phần' : 'Thêm học phần'} + ' - Admin'">Form học phần</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body class="admin-body">
+
+<div class="admin-layout">
+    <aside class="admin-sidebar">
+        <div class="sidebar-brand">
+            <i class="fas fa-graduation-cap"></i>
+            <span>EduAdmin</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a th:href="@{/home}" class="sidebar-link">
+                <i class="fas fa-home"></i> Trang chủ
+            </a>
+            <a th:href="@{/admin/courses}" class="sidebar-link active">
+                <i class="fas fa-book"></i> Quản lý học phần
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <span class="admin-user">
+                <i class="fas fa-user-shield"></i>
+                <sec:authentication property="name"/>
+            </span>
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="btn-sidebar-logout">
+                    <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    <div class="admin-main">
+        <div class="admin-topbar">
+            <h1 class="admin-page-title">
+                <i class="fas fa-edit" th:if="${course.id != null}"></i>
+                <i class="fas fa-plus-circle" th:unless="${course.id != null}"></i>
+                <span th:text="${course.id != null ? 'Chỉnh sửa học phần' : 'Thêm học phần mới'}"></span>
+            </h1>
+            <a th:href="@{/admin/courses}" class="btn-back">
+                <i class="fas fa-arrow-left"></i> Quay lại
+            </a>
+        </div>
+
+        <div class="admin-card form-card">
+            <form th:action="@{/admin/courses/save}" method="post" class="course-form" id="courseForm">
+                <input type="hidden" name="courseId" th:value="${course.id}">
+
+                <!-- Preview image -->
+                <div class="img-preview-wrapper">
+                    <img id="imgPreview"
+                         th:src="${course.image != null and course.image != '' ? course.image : 'https://cdn-icons-png.flaticon.com/512/2232/2232688.png'}"
+                         alt="Preview" class="img-preview"
+                         onerror="this.src='https://cdn-icons-png.flaticon.com/512/2232/2232688.png'">
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label for="name" class="form-label">
+                            <i class="fas fa-book"></i> Tên học phần <span class="required">*</span>
+                        </label>
+                        <input type="text" id="name" name="name"
+                               class="form-input" placeholder="Nhập tên học phần..."
+                               th:value="${course.name}" required>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="image" class="form-label">
+                            <i class="fas fa-image"></i> URL hình ảnh
+                        </label>
+                        <input type="text" id="image" name="image"
+                               class="form-input" placeholder="https://..."
+                               th:value="${course.image}"
+                               oninput="updatePreview(this.value)">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="credits" class="form-label">
+                            <i class="fas fa-star"></i> Số tín chỉ <span class="required">*</span>
+                        </label>
+                        <input type="number" id="credits" name="credits"
+                               class="form-input" min="1" max="6"
+                               th:value="${course.credits != null ? course.credits : 3}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="lecturer" class="form-label">
+                            <i class="fas fa-chalkboard-teacher"></i> Giảng viên
+                        </label>
+                        <input type="text" id="lecturer" name="lecturer"
+                               class="form-input" placeholder="Tên giảng viên..."
+                               th:value="${course.lecturer}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="categoryId" class="form-label">
+                            <i class="fas fa-tag"></i> Danh mục
+                        </label>
+                        <select id="categoryId" name="categoryId" class="form-select">
+                            <option value="">-- Chọn danh mục --</option>
+                            <option th:each="cat : ${categories}"
+                                    th:value="${cat.id}"
+                                    th:text="${cat.name}"
+                                    th:selected="${course.category != null and course.category.id == cat.id}">
+                            </option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <a th:href="@{/admin/courses}" class="btn-cancel">
+                        <i class="fas fa-times"></i> Hủy
+                    </a>
+                    <button type="submit" class="btn-save" id="saveBtn">
+                        <i class="fas fa-save"></i>
+                        <span th:text="${course.id != null ? 'Cập nhật' : 'Lưu học phần'}"></span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/js/main.js}"></script>
+<script>
+function updatePreview(url) {
+    const img = document.getElementById('imgPreview');
+    img.src = url || 'https://cdn-icons-png.flaticon.com/512/2232/2232688.png';
+    img.onerror = function() { this.src = 'https://cdn-icons-png.flaticon.com/512/2232/2232688.png'; };
+}
+</script>
+</body>
+</html>
